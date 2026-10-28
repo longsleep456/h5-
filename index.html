@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>万果园水果商城</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.7.14/vue.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/1.7.7/axios.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/vue-router/3.6.5/vue-router.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      list-style: none;
+      text-decoration: none;
+    }
+    body {
+      background: #f5f5f5;
+      font-size: 14px;
+      padding-bottom: 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      padding: 10px 15px;
+      gap: 10px;
+    }
+    .menu-btn {
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+    }
+    .search-box {
+		  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f2f2f2;
+  border-radius: 20px;
+  padding: 6px 12px;
+  gap: 6px;
+    }
+    .search-box input {
+		  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent
+    }
+	.search-icon {
+  max-width: 18px;
+  max-height: 18px;
+  display: block;
+}
+
+    .side-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .side-box {
+      width: 70%;
+      height: 100%;
+      background: #fff;
+      padding: 20px;
+    }
+    .close-side {
+      font-size: 24px;
+      margin-bottom: 30px;
+      cursor: pointer;
+    }
+    .side-menu-list {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      margin-top: 80px;
+    }
+    .side-menu-item p {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .side-menu-item.active p {
+      color: #ff4444;
+    }
+
+    .banner {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+    }
+    .banner-wrap {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease;
+    }
+    .banner-item {
+      flex-shrink: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .banner-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .close-banner {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 30px;
+      color: #fff;
+      cursor: pointer;
+      z-index: 2;
+      line-height: 1;
+    }
+
+    .banner-dot {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 2;
+    }
+    .banner-dot span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+    }
+    .banner-dot span.active {
+      background: #ffffff;
+    }
+
+    .cate-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      background: #fff;
+      padding: 15px 0;
+      margin: 10px 0;
+    }
+    .cate-item {
+      width: 25%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cate-item img {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 6px;
+    }
+
+    .goods-wrap {
+      background: #fff;
+      padding: 10px;
+    }
+
+    .goods-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 10px;
+      font-size: 16px;
+      position: relative;
+    }
+
+    .goods-title .line {
+      width: 24px;
+      height: 1px;
+      background: #888;
+    }
+    .goods-title .title-text {
+      font-weight: bold;
+      font-size: 20px;
+      color: #222;
+    }
+
+    .goods-title .arrow {
+      position: absolute;
+      right: 20px;
+      font-size: 22px;
+      color: #999;
+    }
+    .goods-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      gap: 10px;
+    }
+    .goods-item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 6px;
+    }
+    .goods-info {
+      flex: 1;
+    }
+    .goods-info h4 {
+      font-size: 15px;
+      color: #333;
+    }
+    .price {
+      color: #ff3333;
+      margin-top: 6px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .reserve {
+      background: #ff3333;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .page-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 0;
+      margin-top: 10px;
+    }
+    .page-box button {
+      padding: 4px 14px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .page-box button:disabled {
+      background: #eee;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    footer.tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 54px;
+      background: #fff;
+      display: flex;
+      border-top: 1px solid #eee;
+      z-index: 10;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 13px;
+    }
+    .tab-item span:first-child {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .tab-item.active {
+      color: #ff3333;
+    }
+    /* 首页版权 */
+    .copyright {
+      text-align: center;
+      padding: 30px 0;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .detail-wrap {
+      background: #fff;
+      padding-bottom: 70px;
+    }
+
+    .detail-image-box {
+      position: relative;
+      width: 100%;
+    }
+    .detail-big-img {
+      width: 100%;
+      display: block;
+    }
+
+    .detail-back-icon {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      padding: 5px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .detail-price {
+      color: #ff3333;
+      font-size: 32px;
+      padding: 16px 16px 8px;
+      font-weight: bold;
+    }
+    .detail-name {
+      font-size: 22px;
+      padding: 0 16px 16px;
+      border-bottom: 1px solid #eee;
+      color: #222;
+    }
+    .detail-tab {
+      display: flex;
+      font-size: 18px;
+    }
+    .detail-tab span {
+      flex: 1;
+      text-align: center;
+      padding: 16px 0;
+      position: relative;
+      color: #666;
+    }
+    .detail-tab span.active {
+      color: #ff3333;
+    }
+    .detail-tab span.active::after {
+      content: '';
+      width: 60px;
+      height: 3px;
+      background: #ff3333;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .recommend-title {
+      padding: 24px 16px 12px;
+      font-size: 18px;
+      color: #333;
+    }
+    .recommend-list {
+      display: flex;
+      padding: 0 10px;
+      gap: 10px;
+    }
+    .recommend-item {
+      flex: 1;
+      text-align: center;
+    }
+    .recommend-item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .recommend-item p {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #333;
+    }
+    .recommend-price {
+      color: #ff3333;
+      font-weight: bold;
+      margin-top: 6px;
+      font-size: 16px;
+    }
+
+    .detail-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      z-index: 11;
+    }
+    .detail-bottom-bar img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .detail-wrap ~ footer.tab-bar {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header v-if="$route.path == '/'">
+    <span class="menu-btn" @click="showSide = true">☰</span>
+    <div class="search-box">
+		<img class="search-icon" src="web/img/sousuo.png" alt="搜索">
+    <input v-model="searchVal" placeholder="搜索">
+    </div>
+    <span class="user-icon">👤</span>
+  </header>
+
+
+  <div class="side-mask" v-show="showSide && $route.path == '/'" @click="showSide = false">
+    <div class="side-box" @click.stop>
+      <div class="close-side" @click="showSide = false">x</div>
+      <div class="side-menu-list">
+        <div class="side-menu-item active"><span style="font-size:36px;">🏠</span><p>首页</p></div>
+        <div class="side-menu-item"><span style="font-size:36px;">▦</span><p>商品分类</p></div>
+        <div class="side-menu-item"><span style="font-size:36px;">📄</span><p>视频购物</p></div>
+      </div>
+    </div>
+  </div>
+
+
+  <template v-if="$route.path == '/'">
+    <div class="banner" v-show="isShowBanner">
+      <div class="banner-wrap" :style="{transform: `translateX(-${bannerIndex * 100}%)`}">
+        <div class="banner-item" v-for="(pic,idx) in bannerList" :key="idx">
+          <img :src="pic" alt="轮播图">
+        </div>
+      </div>
+      <span class="close-banner" @click="isShowBanner = false">×</span>
+      <div class="banner-dot">
+        <span v-for="(pic,idx) in bannerList" :key="idx" :class="idx === bannerIndex ? 'active' : ''"></span>
+      </div>
+    </div>
+    <div class="cate-wrap">
+      <div class="cate-item" v-for="item in cateList" :key="item.id">
+        <img :src="item.img" alt="">
+        <p>{{ item.name }}</p>
+      </div>
+    </div>
+  </template>
+
+
+  <router-view></router-view>
+
+
+  <div class="copyright" v-if="$route.path == '/'">Copyright © 2019 万果园 版权所有</div>
+
+
+  <footer class="tab-bar" v-if="$route.path == '/'">
+    <router-link to="/" class="tab-item" :class="$route.path=='/'?'active':''">
+      <span>🏠</span><span>首页</span>
+    </router-link>
+    <router-link to="/category" class="tab-item" :class="$route.path=='/category'?'active':''">
+      <span>▦</span><span>商品分类</span>
+    </router-link>
+    <router-link to="/video" class="tab-item" :class="$route.path=='/video'?'active':''">
+      <span>📄</span><span>视频购物</span>
+    </router-link>
+    <router-link to="/mine" class="tab-item" :class="$route.path=='/mine'?'active':''">
+      <span>👤</span><span>我</span>
+    </router-link>
+  </footer>
+
+
+  <div class="detail-bottom-bar" v-if="$route.path == '/detail'">
+    <img src="web/img/footer.jpg" alt="底部操作栏">
+  </div>
+</div>
+
+<script>
+
+const Home = {
+  template: `
+    <div class="goods-wrap">
+      <div class="goods-title">
+        <span class="line"></span>
+        <span class="title-text">产品展示</span>
+        <span class="line"></span>
+        <span class="arrow">></span>
+      </div>
+      <div class="goods-item" v-for="(item,idx) in pageGoods" :key="idx">
+        <img :src="item.img">
+        <div class="goods-info">
+          <h4>{{ item.name }}</h4>
+          <p class="price">¥{{ item.price }}</p>
+        </div>
+        <button class="reserve" @click="$router.push('/detail')">预约</button>
+      </div>
+      <div class="page-box">
+      </div>
+    </div>
+  `,
+  data() {
+    return {
+      page: 1,
+      pageSize: 4,
+      goodsList: [
+        {name:"广西 青芒 芒果 2.5kg装",price:32.90,img:"web/img/fruit01.png"},
+        {name:"泰国进口龙眼 1kg",price:22.90,img:"web/img/fruit02.png"},
+        {name:"百香果 精品中果12个装",price:28.90,img:"web/img/fruit03.png"},
+        {name:"智利 进口西梅 约500g",price:19.90,img:"web/img/fruit04.png"}
+      ]
+    }
+  },
+  computed: {
+    totalPage(){return Math.ceil(this.goodsList.length / this.pageSize)},
+    pageGoods(){
+      const start = (this.page - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.goodsList.slice(start, end);
+    }
+  },
+  methods: {
+    changePage(num){
+      if(num >=1 && num <= this.totalPage) this.page = num;
+    }
+  }
+}
+
+
+const Detail = {
+  template:`
+  <div class="detail-wrap">
+    <div class="detail-image-box">
+      <img src="web/img/fruit01.png" class="detail-big-img" alt="广西青芒">
+      <img class="detail-back-icon" src="web/img/tianchongxing-.png" @click="goBack" alt="返回">
+    </div>
+    <div class="detail-price">¥32.90</div>
+    <div class="detail-name">广西 青芒 芒果 2.5kg装</div>
+    <div class="detail-tab">
+      <span class="active">产品详情</span>
+      <span>产品参数</span>
+    </div>
+    <div class="recommend-title">推荐产品</div>
+    <div class="recommend-list">
+      <div class="recommend-item">
+        <img src="web/img/fruit02.png" style="height:120px">
+        <p>泰国进口龙眼<br>1kg</p>
+        <p class="recommend-price">¥22.90</p>
+      </div>
+      <div class="recommend-item">
+        <img src="web/img/fruit06.png" style="height:120px">
+        <p>小台农芒果<br>1.5kg装</p>
+        <p class="recommend-price">¥0.00</p>
+      </div>
+      <div class="recommend-item">
+        <img src="web/img/fruit05.png" style="height:120px">
+        <p>云南大青枣牛奶<br>枣</p>
+        <p class="recommend-price">¥0.00</p>
+      </div>
+    </div>
+  </div>
+  `,
+  methods:{
+    goBack(){
+      this.$router.back();
+    }
+  }
+}
+
+const Category = {template:`<div style="padding:20px">商品分类页面</div>`}
+const Video = {template:`<div style="padding:20px">视频购物页面</div>`}
+const Mine = {template:`<div style="padding:20px">个人中心页面</div>`}
+
+const router = new VueRouter({
+  routes: [
+    {path:'/',component:Home},
+    {path:'/category',component:Category},
+    {path:'/video',component:Video},
+    {path:'/mine',component:Mine},
+    {path:'/detail',component:Detail}
+  ]
+})
+
+new Vue({
+  el:'#app',
+  router,
+  data() {
+    return {
+      showSide: false,
+      isShowBanner: true,
+      searchVal: '',
+
+      bannerList: [
+        "web/img/banner01.png",
+        "web/img/banner02.png"
+      ],
+      bannerIndex: 0, 
+      bannerTimer: null,
+      cateList: []
+    }
+  },
+  mounted() {
+
+    this.bannerTimer = setInterval(() => {
+      this.bannerIndex ++;
+      if(this.bannerIndex >= this.bannerList.length){
+        this.bannerIndex = 0;
+      }
+    }, 3000);
+
+      axios.get('category.json')
+    .then(res => {
+      console.log('接口返回数据：', res.data) 
+      this.cateList = res.data
+    })
+    .catch(err => {
+      console.log('请求报错：', err) 
+
+      this.cateList = [
+        {id:1,name:"国产水果",img:"web/img/nav01.png"},
+        {id:2,name:"进口水果",img:"web/img/nav02.png"},
+        {id:3,name:"免费送货区",img:"web/img/nav03.png"},
+        {id:4,name:"折扣专区",img:"web/img/nav04.png"}
+      ]
+    })
+  },
+  beforeDestroy(){
+    clearInterval(this.bannerTimer);
+  },
+  methods: {
+    search(){
+      if(!this.searchVal.trim()){
+        alert('搜索内容不能为空');
+        return;
+      }
+      alert('正在搜索：'+this.searchVal);
+    }
+  }
+})
+
+</script>
+</body>
+</html>
